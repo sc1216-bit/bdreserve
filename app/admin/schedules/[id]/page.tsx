@@ -7,6 +7,9 @@ type PageProps = {
   params: Promise<{ id: string }>
 }
 
+const formatKST = (value: string) =>
+  new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+
 export default async function AdminScheduleDetailPage({ params }: PageProps) {
   const { id } = await params
   const scheduleId = Number(id)
@@ -82,7 +85,7 @@ export default async function AdminScheduleDetailPage({ params }: PageProps) {
           <div className="rounded-xl bg-gray-50 p-3">
             <p className="text-sm text-gray-500">시간</p>
             <p className="mt-1 font-medium text-gray-900">
-              {new Date(schedule.start_at).toLocaleString('ko-KR')} ~ {new Date(schedule.end_at).toLocaleString('ko-KR')}
+              {formatKST(schedule.start_at)} ~ {formatKST(schedule.end_at)}
             </p>
           </div>
 
@@ -173,7 +176,7 @@ export default async function AdminScheduleDetailPage({ params }: PageProps) {
                       <div className="rounded-xl bg-gray-50 p-3">
                         <p className="text-sm text-gray-500">예약 시각</p>
                         <p className="mt-1 font-medium text-gray-900">
-                          {booking.booked_at ? new Date(booking.booked_at).toLocaleString('ko-KR') : '-'}
+                          {booking.booked_at ? formatKST(booking.booked_at) : '-'}
                         </p>
                       </div>
 
@@ -184,7 +187,7 @@ export default async function AdminScheduleDetailPage({ params }: PageProps) {
                         </p>
                         {booking.cancelled_at ? (
                           <p className="mt-1 text-sm text-gray-600">
-                            취소 시각: {new Date(booking.cancelled_at).toLocaleString('ko-KR')}
+                            취소 시각: {formatKST(booking.cancelled_at)}
                           </p>
                         ) : null}
                       </div>

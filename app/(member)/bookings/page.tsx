@@ -3,6 +3,22 @@ import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import CancelBookingButton from './CancelBookingButton'
 
+const formatKST = (value: string) =>
+  new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+
+const bookingStatusLabel = (status: string) => {
+  switch (status) {
+    case 'BOOKED':
+      return '예약 완료'
+    case 'CANCELLED_BY_MEMBER':
+      return '회원 취소'
+    case 'CANCELLED_BY_ADMIN':
+      return '운영 취소'
+    default:
+      return status
+  }
+}
+
 export default async function MyBookingsPage() {
   const supabase = await createServerSupabaseClient()
 
@@ -38,7 +54,7 @@ export default async function MyBookingsPage() {
     .order('booked_at', { ascending: false })
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="space-y-6">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm text-gray-500">회원 메뉴</p>
@@ -102,13 +118,8 @@ export default async function MyBookingsPage() {
                     <div className="rounded-xl bg-gray-50 p-3">
                       <p className="text-sm text-gray-500">시간</p>
                       <p className="mt-1 font-medium text-gray-900">
-                        {schedule?.start_at
-                          ? new Date(schedule.start_at).toLocaleString('ko-KR')
-                          : '-'}
-                        {' ~ '}
-                        {schedule?.end_at
-                          ? new Date(schedule.end_at).toLocaleString('ko-KR')
-                          : '-'}
+                        {schedule?.start_at ? formatKST(schedule.start_at) : '-'} ~{' '}
+                        {schedule?.end_at ? formatKST(schedule.end_at) : '-'}
                       </p>
                     </div>
 
@@ -121,15 +132,13 @@ export default async function MyBookingsPage() {
 
                     <div className="rounded-xl bg-gray-50 p-3">
                       <p className="text-sm text-gray-500">예약 상태</p>
-                      <p className="mt-1 font-medium text-gray-900">{booking.status}</p>
+                      <p className="mt-1 font-medium text-gray-900">{bookingStatusLabel(booking.status)}</p>
                     </div>
 
                     <div className="rounded-xl bg-gray-50 p-3 md:col-span-2">
                       <p className="text-sm text-gray-500">회원 직접 취소 마감</p>
                       <p className="mt-1 font-medium text-gray-900">
-                        {cancelDeadline
-                          ? cancelDeadline.toLocaleString('ko-KR')
-                          : '-'}
+                        {cancelDeadline ? formatKST(cancelDeadline.toISOString()) : '-'}
                       </p>
                       {booking.status === 'BOOKED' ? (
                         canCancel ? (
@@ -151,6 +160,11 @@ export default async function MyBookingsPage() {
                       <p className="mt-1">
                         쿠폰 복구 여부: {booking.coupon_restored ? '복구됨' : '복구 안 됨'}
                       </p>
+                      {booking.cancelled_at ? (
+                        <p className="mt-1">
+                          취소 시각: {formatKST(booking.cancelled_at)}
+                        </p>
+                      ) : null}
                     </div>
                   ) : null}
                 </div>

@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import CancelScheduleButton from './CancelScheduleButton'
 
+const formatKST = (value: string) =>
+  new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+
 export default async function AdminSchedulesPage() {
   const supabase = await createServerSupabaseClient()
 
@@ -64,7 +67,7 @@ export default async function AdminSchedulesPage() {
                     <div className="rounded-xl bg-gray-50 p-3">
                       <p className="text-sm text-gray-500">시간</p>
                       <p className="mt-1 font-medium text-gray-900">
-                        {new Date(schedule.start_at).toLocaleString('ko-KR')} ~ {new Date(schedule.end_at).toLocaleString('ko-KR')}
+                        {formatKST(schedule.start_at)} ~ {formatKST(schedule.end_at)}
                       </p>
                     </div>
 

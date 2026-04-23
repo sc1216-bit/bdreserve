@@ -7,6 +7,35 @@ type PageProps = {
   params: Promise<{ id: string }>
 }
 
+const formatKST = (value: string) =>
+  new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+
+const scheduleStatusLabel = (status: string) => {
+  switch (status) {
+    case 'OPEN':
+      return '예약 가능'
+    case 'CLOSED':
+      return '마감'
+    case 'CANCELLED':
+      return '운영 취소'
+    default:
+      return status
+  }
+}
+
+const levelLabel = (priority: number) => {
+  switch (priority) {
+    case 1:
+      return '초급 이상'
+    case 2:
+      return '중급 이상'
+    case 3:
+      return '고급 이상'
+    default:
+      return `레벨 ${priority} 이상`
+  }
+}
+
 export default async function ScheduleDetailPage({ params }: PageProps) {
   const { id } = await params
   const scheduleId = Number(id)
@@ -67,7 +96,7 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
             <h1 className="mt-1 text-2xl font-bold text-gray-900">{schedule.title}</h1>
           </div>
           <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
-            {schedule.status}
+            {scheduleStatusLabel(schedule.status)}
           </span>
         </div>
 
@@ -80,8 +109,7 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
           <div className="rounded-xl bg-gray-50 p-4">
             <p className="text-sm text-gray-500">시간</p>
             <p className="mt-1 text-base font-medium text-gray-900">
-              {new Date(schedule.start_at).toLocaleString('ko-KR')} ~{' '}
-              {new Date(schedule.end_at).toLocaleString('ko-KR')}
+              {formatKST(schedule.start_at)} ~ {formatKST(schedule.end_at)}
             </p>
           </div>
 
@@ -93,16 +121,16 @@ export default async function ScheduleDetailPage({ params }: PageProps) {
           </div>
 
           <div className="rounded-xl bg-gray-50 p-4">
-            <p className="text-sm text-gray-500">최소 레벨</p>
+            <p className="text-sm text-gray-500">예약 가능 레벨</p>
             <p className="mt-1 text-base font-medium text-gray-900">
-              priority {schedule.min_level_priority} 이상
+              {levelLabel(schedule.min_level_priority)}
             </p>
           </div>
 
           <div className="rounded-xl bg-gray-50 p-4 md:col-span-2">
             <p className="text-sm text-gray-500">회원 직접 취소 마감</p>
             <p className="mt-1 text-base font-medium text-gray-900">
-              {new Date(schedule.member_cancel_deadline_at).toLocaleString('ko-KR')}
+              {formatKST(schedule.member_cancel_deadline_at)}
             </p>
             <p className="mt-2 text-sm text-gray-600">
               예약 시 쿠폰 1회가 차감됩니다. 회원 직접 취소는 시작일 기준 2일 전 18시 전까지만 가능합니다.

@@ -2,6 +2,9 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
+const formatKST = (value: string) =>
+  new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+
 export default async function MyCouponsPage() {
   const supabase = await createServerSupabaseClient()
 
@@ -30,7 +33,7 @@ export default async function MyCouponsPage() {
   const totalCount = coupons?.reduce((sum, coupon) => sum + (coupon.total_count ?? 0), 0) ?? 0
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="space-y-6">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm text-gray-500">회원 메뉴</p>
@@ -181,7 +184,7 @@ export default async function MyCouponsPage() {
                     <td className="px-4 py-3 text-sm text-gray-700">{tx.reason ?? '-'}</td>
                     <td className="px-4 py-3 text-sm text-gray-700">{tx.booking_id ?? '-'}</td>
                     <td className="px-4 py-3 text-sm text-gray-700">
-                      {new Date(tx.created_at).toLocaleString('ko-KR')}
+                      {formatKST(tx.created_at)}
                     </td>
                   </tr>
                 ))}

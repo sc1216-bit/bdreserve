@@ -6,6 +6,7 @@ export async function POST(req: Request) {
     const body = await req.json()
     const bookingId = Number(body.bookingId)
     const reason = String(body.reason || '').trim() || '관리자 취소'
+    const restoreCoupon = body.restoreCoupon === true
 
     if (!bookingId) {
       return NextResponse.json(
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
     const { data, error } = await supabase.rpc('cancel_booking_by_admin', {
       p_booking_id: bookingId,
       p_reason: reason,
+      p_restore_coupon: restoreCoupon,
     })
 
     if (error) {

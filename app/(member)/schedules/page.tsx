@@ -2,6 +2,35 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 
+const formatKST = (value: string) =>
+  new Date(value).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })
+
+const scheduleStatusLabel = (status: string) => {
+  switch (status) {
+    case 'OPEN':
+      return '예약 가능'
+    case 'CLOSED':
+      return '마감'
+    case 'CANCELLED':
+      return '운영 취소'
+    default:
+      return status
+  }
+}
+
+const levelLabel = (priority: number) => {
+  switch (priority) {
+    case 1:
+      return '초급 이상'
+    case 2:
+      return '중급 이상'
+    case 3:
+      return '고급 이상'
+    default:
+      return `레벨 ${priority} 이상`
+  }
+}
+
 export default async function MemberSchedulesPage() {
   const supabase = await createServerSupabaseClient()
 
@@ -32,7 +61,7 @@ export default async function MemberSchedulesPage() {
     .order('start_at', { ascending: true })
 
   return (
-    <main className="mx-auto max-w-5xl px-6 py-10">
+    <main className="space-y-6">
       <div className="mb-6 flex items-center justify-between gap-4">
         <div>
           <p className="text-sm text-gray-500">회원 메뉴</p>
@@ -93,8 +122,7 @@ export default async function MemberSchedulesPage() {
                     <div className="rounded-xl bg-gray-50 p-3">
                       <p className="text-sm text-gray-500">시간</p>
                       <p className="mt-1 font-medium text-gray-900">
-                        {new Date(schedule.start_at).toLocaleString('ko-KR')} ~{' '}
-                        {new Date(schedule.end_at).toLocaleString('ko-KR')}
+                        {formatKST(schedule.start_at)} ~ {formatKST(schedule.end_at)}
                       </p>
                     </div>
 
@@ -106,16 +134,16 @@ export default async function MemberSchedulesPage() {
                     </div>
 
                     <div className="rounded-xl bg-gray-50 p-3">
-                      <p className="text-sm text-gray-500">최소 레벨</p>
+                      <p className="text-sm text-gray-500">예약 가능 레벨</p>
                       <p className="mt-1 font-medium text-gray-900">
-                        priority {schedule.min_level_priority} 이상
+                        {levelLabel(schedule.min_level_priority)}
                       </p>
                     </div>
 
                     <div className="rounded-xl bg-gray-50 p-3 md:col-span-2">
                       <p className="text-sm text-gray-500">장소 / 상태</p>
                       <p className="mt-1 font-medium text-gray-900">
-                        {schedule.location_name || '-'} · {schedule.status}
+                        {schedule.location_name || '-'} · {scheduleStatusLabel(schedule.status)}
                       </p>
                     </div>
                   </div>
@@ -125,7 +153,7 @@ export default async function MemberSchedulesPage() {
                   <div className="rounded-2xl border border-gray-200 bg-gray-50 p-4">
                     <p className="text-sm font-medium text-gray-900">상세 보기</p>
                     <p className="mt-2 text-sm text-gray-600">
-                      클릭하면 일정 상세와 예약하기 화면으로 이동합니다.
+                      클릭하면 일정 상세와 예약 화면으로 이동합니다.
                     </p>
                     <div className="mt-4 inline-flex rounded-xl bg-black px-4 py-2 text-sm font-semibold text-white">
                       일정 상세 보기
